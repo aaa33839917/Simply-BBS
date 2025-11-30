@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block title %}帖子审核{% endblock %}
+
+{% block scripts %}
+    <style>
+        .review-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .status-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .posts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .post-item {
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .post-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .post-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .post-status.pending { background-color: #f39c12; }
+        .post-status.approved { background-color: #2ecc71; }
+        .post-status.rejected { background-color: #e74c3c; }
+        
+        .post-actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .approve-btn {
+            padding: 8px 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .approve-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .reject-btn {
+            padding: 8px 15px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .reject-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .post-preview {
+            margin: 15px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        
+        .post-preview h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .post-preview .content {
+            color: #555;
+            line-height: 1.6;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+            <section class="review-section">
+                <div class="review-header">
+                    <h2>帖子审核</h2>
+                    <div class="status-filter">
+                        <a href="{{ url_for('review', status='pending') }}" class="filter-btn {% if status == 'pending' %}active{% endif %}">待审核</a>
+                        <a href="{{ url_for('review', status='approved') }}" class="filter-btn {% if status == 'approved' %}active{% endif %}">已通过</a>
+                        <a href="{{ url_for('review', status='rejected') }}" class="filter-btn {% if status == 'rejected' %}active{% endif %}">已拒绝</a>
+                        <a href="{{ url_for('review') }}" class="filter-btn {% if not status %}active{% endif %}">全部</a>
+                    </div>
+                </div>
+                
+                <div class="posts-list">
+                    {% if posts %}
+                        {% for post in posts %}
+                            <article class="post-item">
+                                <div class="post-status {{ post.status }}">
+                                    {% if post.status == 'pending' %}待审核
+                                    {% elif post.status == 'approved' %}已通过
+                                    {% elif post.status == 'rejected' %}已拒绝
+                                    {% endif %}
+                                </div>
+                                
+                                <h3 class="post-title">{{ post.title }}</h3>
+                                
+                                <div class="post-meta">
+                                    <span class="post-board">
+                                        {% if post.board == 'general' %}综合板块{% elif post.board == 'mc_server' %}MC服务器板块{% elif post.board == 'python' %}Python板块{% elif post.board == 'mc_daily' %}MC日常板块{% elif post.board == 'linux' %}Linux板块{% else %}{{ post.board }}{% endif %}
+                                    </span>
+                                    <span class="post-author">作者: {{ post.author }}</span>
+                                    <span class="post-date">{{ post.created_at }}</span>
+                                    <span class="post-views">浏览: {{ post.views }}</span>
+                                    <span class="post-likes">点赞: {{ post.likes }}</span>
+                                </div>
+                                
+                                <div class="post-preview">
+                                    <h4>内容预览:</h4>
+                                    <div class="content">{{ post.content }}</div>
+                                </div>
+                                
+                                <div class="post-actions">
+                                    {% if post.status == 'pending' %}
+                                        <form action="{{ url_for('review_post', post_id=post.id, action='approve') }}" method="post" style="display: inline;">
+                                            <button type="submit" class="approve-btn">通过</button>
+                                        </form>
+                                        <form action="{{ url_for('review_post', post_id=post.id, action='reject') }}" method="post" style="display: inline;">
+                                            <button type="submit" class="reject-btn">拒绝</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        {% endfor %}
+                    {% else %}
+                        <div class="no-posts">没有符合条件的帖子</div>
+                    {% endif %}
+                </div>
+            </section>
+{% endblock %}

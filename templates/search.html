@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %}搜索结果{% endblock %}
+
+{% block content %}
+    <!-- 搜索结果头部 -->
+    <section class="search-results-header">
+        <h2>搜索结果</h2>
+        <div class="search-info">
+            <p>共找到 <strong>{{ posts|length }}</strong> 条关于 "{{ query }}" 的帖子</p>
+            <a href="{{ url_for('index') }}" class="back-btn">返回首页</a>
+        </div>
+    </section>
+    
+    <!-- 搜索结果列表 -->
+    <section class="posts-section">
+        <div class="posts-list">
+            {% if posts %}
+                {% for post in posts %}
+                    <article class="post-item">
+                        {% if current_role in ['admin', 'reviewer', 'moderator'] %}
+                            <span class="post-status {{ post.status }}">
+                                {% if post.status == 'pending' %}待审核
+                                {% elif post.status == 'approved' %}已通过
+                                {% elif post.status == 'rejected' %}已拒绝
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                        <h3 class="post-title"><a href="{{ url_for('post_detail', post_id=post.id) }}">{{ post.title }}</a></h3>
+                        <div class="post-meta">
+                            <span class="post-board">
+                                {% if post.board == 'general' %}综合板块{% elif post.board == 'mc_server' %}MC服务器板块{% elif post.board == 'python' %}Python板块{% elif post.board == 'mc_daily' %}MC日常板块{% elif post.board == 'linux' %}Linux板块{% else %}{{ post.board }}{% endif %}
+                            </span>
+                            <span class="post-author">作者: {{ post.author }}</span>
+                            <span class="post-date">{{ post.created_at }}</span>
+                            <span class="post-views">浏览: {{ post.views }}</span>
+                            <span class="post-likes">点赞: {{ post.likes }}</span>
+                        </div>
+                        <div class="post-preview">
+                            <p>{{ post.content[:150] }}{% if post.content|length > 150 %}...{% endif %}</p>
+                        </div>
+                        <div class="post-actions">
+                            <a href="{{ url_for('post_detail', post_id=post.id) }}" class="read-more">阅读全文</a>
+                        </div>
+                    </article>
+                {% endfor %}
+            {% else %}
+                <div class="no-posts">
+                    <p>没有找到与 "{{ query }}" 相关的帖子</p>
+                    <p>建议尝试其他关键词或检查拼写</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endblock %}
+
+{% block scripts %}
+    <style>
+        .search-results-header {
+            background-color: #fafafa;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .search-results-header h2 {
+            margin-bottom: 10px;
+        }
+        
+        .search-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .search-info p {
+            color: #666;
+        }
+        
+        .post-preview {
+            margin: 15px 0;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .no-posts {
+            text-align: center;
+            padding: 40px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            color: #666;
+        }
+        
+        .no-posts p {
+            margin: 10px 0;
+        }
+    </style>
+{% endblock %}

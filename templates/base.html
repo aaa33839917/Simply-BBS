@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %} - 简单论坛</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- 页面头 - 放在container外面 -->
+    <header>
+        <div class="header-content">
+            <div class="header-left">
+                <h1>简单论坛</h1>
+                <nav>
+                    <a href="{{ url_for('index') }}" {% if request.endpoint == 'index' %}class="active"{% endif %}>首页</a>
+                    {% if 'user_id' in session %}
+                        <a href="{{ url_for('user_profile') }}" {% if request.endpoint == 'user_profile' %}class="active"{% endif %}>个人中心</a>
+                        {% if session.get('role') in ['admin', 'moderator', 'reviewer'] %}
+                            <a href="{{ url_for('admin') }}" {% if request.endpoint == 'admin' %}class="active"{% endif %}>管理后台</a>
+                            <a href="{{ url_for('review') }}" {% if request.endpoint == 'review' %}class="active"{% endif %}>帖子审核</a>
+                        {% endif %}
+                    {% endif %}
+                </nav>
+            </div>
+            <div class="header-right">
+                <form action="{{ url_for('search') }}" method="get" class="search-box">
+                    <input type="text" name="q" placeholder="搜索帖子..." required>
+                    <button type="submit">搜索</button>
+                </form>
+                <nav>
+                    {% if 'user_id' in session %}
+                        <a href="{{ url_for('logout') }}">退出登录</a>
+                    {% else %}
+                        <a href="{{ url_for('login_page') }}" {% if request.endpoint == 'login_page' %}class="active"{% endif %}>登录</a>
+                        <a href="{{ url_for('register_page') }}" {% if request.endpoint == 'register_page' %}class="active"{% endif %}>注册</a>
+                    {% endif %}
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 主内容区域 - 保留在container内 -->
+    <div class="container">
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    <!-- 页面尾 - 放在container外面 -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>简单论坛</h3>
+                <p>一个简单易用的论坛平台，提供发帖、评论、点赞等功能，支持多种用户角色和帖子审核。</p>
+            </div>
+            <div class="footer-section">
+                <h3>快速链接</h3>
+                <div class="footer-links">
+                    <a href="{{ url_for('index') }}">首页</a>
+                    {% if 'user_id' in session %}
+                        <a href="{{ url_for('user_profile') }}">个人中心</a>
+                    {% endif %}
+                    <a href="{{ url_for('login_page') }}">登录</a>
+                    <a href="{{ url_for('register_page') }}">注册</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>管理功能</h3>
+                <div class="footer-links">
+                    {% if 'user_id' in session %}
+                        {% if session.get('role') in ['admin', 'moderator', 'reviewer'] %}
+                            <a href="{{ url_for('admin') }}">管理后台</a>
+                            <a href="{{ url_for('review') }}">帖子审核</a>
+                        {% endif %}
+                        <a href="{{ url_for('logout') }}">退出登录</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>联系我们</h3>
+                <div class="footer-contact">
+                    <div class="contact-item">
+                        <span>邮箱：admin@example.com</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>QQ群：123456789</span>
+                    </div>
+                    <div class="contact-item">
+                        <span>地址：北京市朝阳区</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 简单论坛. 保留所有权利.</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block scripts %}
+    <style>
+        /* 删除和隐藏帖子按钮样式 */
+        .delete-btn, .hide-btn, .show-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        .hide-btn {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .hide-btn:hover {
+            background-color: #e67e22;
+            transform: translateY(-2px);
+        }
+        
+        .show-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .show-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <section class="post-detail-section">
+        <article class="post-detail">
+            <h2 class="post-title">{{ post.title }}</h2>
+            <div class="post-meta">
+                <span class="post-author">作者: {{ post.author }}</span>
+                <span class="post-date">{{ post.created_at }}</span>
+                <span class="post-views">浏览: {{ post.views }}</span>
+                <span class="post-likes">点赞: <span id="like-count">{{ post.likes }}</span></span>
+            </div>
+            <div class="post-content">
+                {{ post.content }}
+            </div>
+            <div class="post-actions">
+                <form action="{{ url_for('like_post', post_id=post.id) }}" method="post" style="display: inline;">
+                    {% if session.get('username') in post.liked_by %}
+                        <button type="submit" class="like-btn liked">
+                            👎 取消点赞 ({{ post.likes }})
+                        </button>
+                    {% else %}
+                        <button type="submit" class="like-btn">
+                            👍 点赞 ({{ post.likes }})
+                        </button>
+                    {% endif %}
+                </form>
+                
+                <!-- 删除和隐藏帖子按钮 - 仅管理员、审核员和版主可见 -->
+                {% if current_role in ['admin', 'reviewer', 'moderator'] %}
+                    <form action="{{ url_for('delete_post', post_id=post.id) }}" method="post" style="display: inline;">
+                        <button type="submit" class="delete-btn" onclick="return confirm('确定要删除这篇帖子吗？');">
+                            🗑️ 删除帖子
+                        </button>
+                    </form>
+                    
+                    <form action="{{ url_for('hide_post', post_id=post.id) }}" method="post" style="display: inline;">
+                        {% if post.status == 'approved' %}
+                            <button type="submit" class="hide-btn">
+                                🙈 隐藏帖子
+                            </button>
+                        {% else %}
+                            <button type="submit" class="show-btn">
+                                👁️ 显示帖子
+                            </button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+            </div>
+        </article>
+        
+        <!-- 评论区 -->
+        <section class="comments-section">
+            <h3>评论 ({{ post.comments|length }})</h3>
+            
+            <!-- 评论表单 -->
+            <form action="{{ url_for('add_comment', post_id=post.id) }}" method="post" class="comment-form">
+                {% if not session.get('username') %}
+                    <div class="login-prompt">
+                        请先<a href="{{ url_for('login_page') }}">登录</a>后再发表评论
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="comment-content">发表评论:</label>
+                    <textarea id="comment-content" name="content" rows="3" required placeholder="请输入评论内容" {% if not session.get('username') %}disabled{% endif %}></textarea>
+                </div>
+                <button type="submit" class="submit-btn" {% if not session.get('username') %}disabled{% endif %}>提交评论</button>
+            </form>
+            
+            <!-- 评论列表 -->
+            <div id="commentsList" class="comments-list">
+                {% if post.comments %}
+                    {% for comment in post.comments %}
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-author">{{ comment.author }}</span>
+                                <span class="comment-date">{{ comment.created_at }}</span>
+                            </div>
+                            <div class="comment-content">
+                                {{ comment.content }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="no-comments">还没有评论，快来发表第一条评论吧！</div>
+                {% endif %}
+            </div>
+        </section>
+        
+        <a href="{{ url_for('index') }}" class="back-btn">返回首页</a>
+    </section>
+{% endblock %}

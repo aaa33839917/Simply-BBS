@@ -1,0 +1,49 @@
+{
+    "boards": [
+        {
+            "id": 1,
+            "name": "general",
+            "display_name": "综合板块",
+            "description": "综合讨论区",
+            "posts_count": 6,
+            "likes_count": 12,
+            "created_at": "2025-11-30 16:57:49"
+        },
+        {
+            "id": 2,
+            "name": "mc_server",
+            "display_name": "MC服务器板块",
+            "description": "Minecraft服务器讨论",
+            "posts_count": 0,
+            "likes_count": 0,
+            "created_at": "2025-11-30 16:57:49"
+        },
+        {
+            "id": 3,
+            "name": "python",
+            "display_name": "Python板块",
+            "description": "Python编程讨论",
+            "posts_count": 0,
+            "likes_count": 0,
+            "created_at": "2025-11-30 16:57:49"
+        },
+        {
+            "id": 4,
+            "name": "mc_daily",
+            "display_name": "MC日常板块",
+            "description": "Minecraft日常分享",
+            "posts_count": 0,
+            "likes_count": 0,
+            "created_at": "2025-11-30 16:57:49"
+        },
+        {
+            "id": 5,
+            "name": "linux",
+            "display_name": "Linux板块",
+            "description": "Linux系统讨论",
+            "posts_count": 0,
+            "likes_count": 0,
+            "created_at": "2025-11-30 16:57:49"
+        }
+    ]
+}
